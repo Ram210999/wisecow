@@ -38,26 +38,40 @@ jobs:
 
       - name: Create Kind Cluster
         uses: helm/kind-action@v1.4.0
+        with:
+          wait: 120s
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
-      
+
+      - name: Verify cluster status
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
       - name: Deploy NGINX Ingress Controller
         run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.2.0/deploy/static/provider/kind/deploy.yaml
-      
+          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
+
       - name: Deploy Cert-Manager
         run: |
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml
-          
+
       - name: Wait for NGINX & Cert-Manager to be ready
         run: |
-          kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=1800s
-          kubectl wait --namespace cert-manager --for=condition=ready pod --all --timeout=1800s
+          kubectl wait --namespace ingress-nginx \
+            --for=condition=ready pod \
+            --selector=app.kubernetes.io/component=controller \
+            --timeout=300s
+          kubectl wait --namespace cert-manager \
+            --for=condition=ready pod \
+            --all \
+            --timeout=300s
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f cluster-issuer.yaml
-          kubectl apply -f ingress.yaml
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+          kubectl apply -f cluster-issuer.yml
+          kubectl apply -f ingress.yml
+

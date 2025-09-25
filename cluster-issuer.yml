@@ -5,10 +5,11 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: srirammanyam105@gmail.com 
+    email: srirammanyam105@gmail.com
     privateKeySecretRef:
       name: letsencrypt-staging-key
     solvers:
       - http01:
           ingress:
-            class: nginx
+            ingressClassName: nginx
+

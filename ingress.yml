@@ -4,9 +4,9 @@ metadata:
   name: wisecow-ingress
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-staging" 
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
-  ingressClassName: nginx 
+  ingressClassName: nginx
   rules:
     - host: wisecow.example.com
       http:
@@ -17,8 +17,9 @@ spec:
               service:
                 name: wisecow-service
                 port:
-                  number: 4499  
+                  number: 4499
   tls:
     - hosts:
-        - wisecow.example.com 
+        - wisecow.example.com
       secretName: wisecow-tls-secret
+
