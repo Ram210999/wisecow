@@ -59,19 +59,15 @@ jobs:
 
       - name: Wait for NGINX & Cert-Manager to be ready
         run: |
-          kubectl wait --namespace ingress-nginx \
-            --for=condition=ready pod \
-            --selector=app.kubernetes.io/component=controller \
-            --timeout=300s
-          kubectl wait --namespace cert-manager \
-            --for=condition=ready pod \
-            --all \
-            --timeout=300s
+          kubectl rollout status deployment ingress-nginx-controller -n ingress-nginx --timeout=600s
+          kubectl rollout status deployment cert-manager -n cert-manager --timeout=600s
+          kubectl rollout status deployment cert-manager-webhook -n cert-manager --timeout=600s
+          kubectl rollout status deployment cert-manager-cainjector -n cert-manager --timeout=600s
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f deployment.yml
-          kubectl apply -f service.yml
-          kubectl apply -f cluster-issuer.yml
-          kubectl apply -f ingress.yml
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
+          kubectl apply -f cluster-issuer.yaml
+          kubectl apply -f ingress.yaml
 
