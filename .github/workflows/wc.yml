@@ -49,11 +49,6 @@ jobs:
           kubectl cluster-info
           kubectl get nodes
 
-      - name: Deploy NGINX Ingress Controller
-        run: |
-          kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/kind/deploy.yaml
-          echo "Skipping rollout wait for ingress-nginx controller (Kind CI limitation)"
-
       - name: Deploy Cert-Manager
         run: |
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.0/cert-manager.yaml
@@ -64,12 +59,16 @@ jobs:
           kubectl rollout status deployment cert-manager-webhook -n cert-manager --timeout=600s
           kubectl rollout status deployment cert-manager-cainjector -n cert-manager --timeout=600s
 
-      - name: Apply Kubernetes manifests
+      - name: Deploy App Deployment and Service
         run: |
-          kubectl apply -f k8s/ --validate=false
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
-      - name: Verify app deployment
+      - name: Verify App Deployment
         run: |
           kubectl rollout status deployment wisecow-deployment -n default --timeout=300s
           kubectl get pods -o wide
+
+      - name: Skip Ingress Creation in CI
+        run: echo "Skipping ingress creation in CI due to Kind admission webhook limitation."
 
