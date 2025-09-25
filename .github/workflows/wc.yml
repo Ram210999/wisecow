@@ -66,10 +66,10 @@ jobs:
 
       - name: Apply Kubernetes manifests
         run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl apply -f cluster-issuer.yaml
-          kubectl apply -f ingress.yaml
+          kubectl apply -f deployment.yml
+          kubectl apply -f service.yml
+          kubectl apply -f cluster-issuer.yml
+          kubectl apply -f ingress.yml
 
       - name: Verify app deployment
         run: |
