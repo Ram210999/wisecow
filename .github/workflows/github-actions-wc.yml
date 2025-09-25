@@ -27,7 +27,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: srirammanyam/wisecow:latest 
+          tags: srirammanyam/wisecow:latest
 
   deploy-to-kubernetes:
     runs-on: ubuntu-latest
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Create Kind Cluster
-        uses: helm/kind-action@v1.4.0 
+        uses: helm/kind-action@v1.4.0
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v3
@@ -55,7 +55,7 @@ jobs:
           kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
           kubectl wait --namespace cert-manager --for=condition=ready pod --all --timeout=300s
 
-      - name: Apply Kubernetes manifests (App & TLS Config)
+      - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f deployment.yaml
           kubectl apply -f service.yaml
