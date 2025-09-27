@@ -65,6 +65,22 @@ jobs:
           kubectl apply -f k8s/ingress.yaml
           kubectl rollout status deployment wisecow-deployment --timeout=300s
 
+      - name: Diagnostics (on failure)
+        if: failure()
+        run: |
+          echo "=== Nodes ==="
+          kubectl get nodes -o wide
+          echo "=== Pods (all namespaces) ==="
+          kubectl get pods -A -o wide
+          echo "=== Recent events ==="
+          kubectl get events -A --sort-by=.lastTimestamp | tail -n 200 || true
+          echo "=== Describe deployment ==="
+          kubectl describe deploy wisecow-deployment || true
+          echo "=== Describe pods (app=wisecow) ==="
+          kubectl describe pods -l app=wisecow || true
+          echo "=== Container logs (tail) ==="
+          kubectl logs -l app=wisecow --all-containers --tail=200 || true
+
       - name: Test HTTPS access
         run: |
           MINIKUBE_IP=$(minikube ip)
