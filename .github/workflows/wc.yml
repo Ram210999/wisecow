@@ -37,42 +37,37 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Start Minikube
-        uses: medyagh/setup-minikube@master
+        uses: medyagh/setup-minikube@v0.0.18
         with:
           driver: docker
 
-      - name: Verify cluster is running
-        run: kubectl get nodes
+      - name: Verify cluster status
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
 
       - name: Enable ingress addon
-        run: minikube addons enable ingress
-
-      - name: Wait for ingress controller
         run: |
-          kubectl rollout status deployment ingress-nginx-controller -n ingress-nginx --timeout=600s
+          minikube addons enable ingress
+          kubectl -n ingress-nginx rollout status deployment ingress-nginx-controller --timeout=600s
 
       - name: Generate self-signed TLS cert
         run: |
           openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
             -keyout tls.key -out tls.crt \
             -subj "/CN=wisecow.local/O=wisecow"
-
-          kubectl create secret tls wisecow-tls \
-            --cert=tls.crt \
-            --key=tls.key
+          kubectl create secret tls wisecow-tls --cert=tls.crt --key=tls.key
 
       - name: Deploy Wisecow app
         run: |
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
           kubectl apply -f k8s/ingress.yaml
-
-      - name: Verify deployment
-        run: kubectl rollout status deployment wisecow-deployment
+          kubectl rollout status deployment wisecow-deployment --timeout=300s
 
       - name: Test HTTPS access
         run: |
           MINIKUBE_IP=$(minikube ip)
           echo "$MINIKUBE_IP wisecow.local" | sudo tee -a /etc/hosts
-          curl -k https://wisecow.local
+          curl -k --retry 10 --retry-delay 5 https://wisecow.local
 

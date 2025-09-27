@@ -1,17 +1,16 @@
-FROM ubuntu:22.04
+FROM debian:stable-slim
 
-RUN apt-get update && \
-    apt-get install -y netcat-openbsd cowsay fortune-mod && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y \
+    bash \
+    fortune-mod \
+    cowsay \
+    netcat-openbsd \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV SRVPORT=4499
-
-COPY wisecow.sh /usr/local/bin/wisecow.sh
-
-RUN chmod +x /usr/local/bin/wisecow.sh
+WORKDIR /app
+COPY wisecow.sh /app/wisecow.sh
+RUN chmod +x /app/wisecow.sh
 
 EXPOSE 4499
-
-CMD ["/usr/local/bin/wisecow.sh"]
+CMD ["./wisecow.sh"]
 
